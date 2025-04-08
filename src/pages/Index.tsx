@@ -39,7 +39,8 @@ const Index = () => {
 
   // Check for critical conditions and create alerts
   useEffect(() => {
-    if (!simulationState.isRunning) return;
+    // Only check for conditions if simulation is running or when just completed
+    if (!simulationState.isRunning && !simulationCompleted) return;
     
     const checkConditionsAndCreateAlerts = () => {
       let newAlerts: Alert[] = [...simulationState.alerts];
@@ -116,7 +117,7 @@ const Index = () => {
         });
       }
       
-      if (growthValue >= 99.5 && !newAlerts.some(a => a.message.includes('fully grown'))) {
+      if (growthValue >= 98 && !newAlerts.some(a => a.message.includes('fully grown'))) {
         newAlerts = [
           {
             level: 'info',
@@ -141,7 +142,7 @@ const Index = () => {
     };
     
     checkConditionsAndCreateAlerts();
-  }, [currentDataIndex, simulationState.isRunning]);
+  }, [currentDataIndex, simulationState.isRunning, currentData, simulationState.alerts, simulationCompleted]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -152,11 +153,31 @@ const Index = () => {
           // Check if we've reached the end of the data
           if (prevIndex + 1 >= simulationState.simulationData.length) {
             // Stop the simulation and mark as completed
+            setSimulationState(prev => ({
+              ...prev,
+              isRunning: false
+            }));
             setSimulationCompleted(true);
             toast.success("Simulation complete! Full 24-hour cycle finished.", {
               duration: 4000,
               position: "top-center",
             });
+            
+            // Also trigger one final alert check at completion
+            setTimeout(() => {
+              const finalGrowthValue = parseFloat(simulationState.simulationData[prevIndex].growthLevel);
+              const finalAlert: Alert = {
+                level: 'info',
+                message: `Simulation completed with plant growth at ${finalGrowthValue}%`,
+                timestamp: new Date()
+              };
+              
+              setSimulationState(prev => ({
+                ...prev,
+                alerts: [finalAlert, ...prev.alerts]
+              }));
+            }, 500);
+            
             return prevIndex; // Keep the index at the last data point
           }
           

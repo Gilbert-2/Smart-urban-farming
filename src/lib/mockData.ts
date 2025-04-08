@@ -30,8 +30,8 @@ export const generateMockData = (): SensorData[] => {
     let soilMoisture = 80 - (baseIndex * 0.8); // Gradually decreases
     if (baseIndex === 23) soilMoisture = 80; // Reset when watered
     
-    // Growth increases gradually over the day
-    const growthPercent = Math.min(99, (0.5 + (i / 288) * 50)).toFixed(2);
+    // Growth increases gradually over the day - now goes all the way to 100%
+    const growthPercent = Math.min(100, ((i / 288) * 100)).toFixed(2);
     
     // Actuator states
     const needsWater = soilMoisture < 65;
@@ -39,7 +39,7 @@ export const generateMockData = (): SensorData[] => {
     const needsVentilation = temperature > 24 || humidity > 70;
     const needsNutrients = hour === 8 || hour === 16;
     
-    const waterLevel = 90 - (i / 288) * 30; // Decreases gradually
+    const waterLevel = 90 - (i / 288) * 70; // Decreases more significantly throughout the day
     
     // Energy consumption increases throughout the day
     const energyConsumption = ((i / 288) * 1000).toFixed(2);

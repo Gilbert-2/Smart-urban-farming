@@ -36,6 +36,7 @@ const PlantGrowthCard: React.FC<PlantGrowthCardProps> = ({ growthPercentage }) =
 
   // Plant size visualization
   const getPlantHeight = () => {
+    // Make sure to use the full range for plant height (5 to 100)
     return Math.max(5, Math.min(growthValue, 100));
   };
 
