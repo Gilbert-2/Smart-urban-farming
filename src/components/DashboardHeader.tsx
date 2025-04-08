@@ -8,6 +8,7 @@ interface DashboardHeaderProps {
   simulationSpeed: number;
   onPlayPause: () => void;
   onSpeedChange: (speed: number) => void;
+  isCompleted?: boolean;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
@@ -15,7 +16,8 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   isRunning,
   simulationSpeed,
   onPlayPause,
-  onSpeedChange
+  onSpeedChange,
+  isCompleted = false
 }) => {
   return (
     <header className="bg-gradient-to-r from-green-700 to-green-900 text-white p-4 rounded-lg shadow-lg mb-6">
@@ -44,7 +46,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               onClick={onPlayPause}
               className="bg-white text-green-800 hover:bg-green-100 font-bold py-2 px-4 rounded-full transition-colors"
             >
-              {isRunning ? 'Pause' : 'Play'}
+              {isCompleted && !isRunning ? 'Restart' : (isRunning ? 'Pause' : 'Play')}
             </button>
             
             <select
@@ -60,6 +62,12 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </div>
         </div>
       </div>
+      
+      {isCompleted && (
+        <div className="mt-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-center text-sm font-medium">
+          Simulation completed! Press 'Restart' to run again.
+        </div>
+      )}
     </header>
   );
 };

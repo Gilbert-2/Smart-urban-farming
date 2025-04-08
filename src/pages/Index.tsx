@@ -11,6 +11,7 @@ import WaterLevelCard from '@/components/WaterLevelCard';
 import AlertsCard from '@/components/AlertsCard';
 import { mockData, mockAlerts } from '@/lib/mockData';
 import { SensorData, Alert, SimulationState } from '@/lib/types';
+import { toast } from "sonner";
 
 const Index = () => {
   const [simulationState, setSimulationState] = useState<SimulationState>({
@@ -22,6 +23,7 @@ const Index = () => {
   });
   
   const [currentDataIndex, setCurrentDataIndex] = useState(0);
+  const [simulationCompleted, setSimulationCompleted] = useState(false);
   const currentData = simulationState.simulationData[currentDataIndex];
   
   // Manual control flags
@@ -35,11 +37,22 @@ const Index = () => {
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
-    if (simulationState.isRunning) {
+    if (simulationState.isRunning && !simulationCompleted) {
       interval = setInterval(() => {
         setCurrentDataIndex((prevIndex) => {
-          // Loop back to start if we reach the end
-          const newIndex = prevIndex + 1 < simulationState.simulationData.length ? prevIndex + 1 : 0;
+          // Check if we've reached the end of the data
+          if (prevIndex + 1 >= simulationState.simulationData.length) {
+            // Stop the simulation and mark as completed
+            setSimulationCompleted(true);
+            toast.success("Simulation complete! Full 24-hour cycle finished.", {
+              duration: 4000,
+              position: "top-center",
+            });
+            return prevIndex; // Keep the index at the last data point
+          }
+          
+          // Continue to next data point
+          const newIndex = prevIndex + 1;
           // Update current time
           setSimulationState(prev => ({
             ...prev,
@@ -51,13 +64,25 @@ const Index = () => {
     }
     
     return () => clearInterval(interval);
-  }, [simulationState.isRunning, simulationState.simulationSpeed, simulationState.simulationData]);
+  }, [simulationState.isRunning, simulationState.simulationSpeed, simulationState.simulationData, simulationCompleted]);
   
   const handlePlayPause = () => {
-    setSimulationState(prev => ({
-      ...prev,
-      isRunning: !prev.isRunning
-    }));
+    if (simulationCompleted && !simulationState.isRunning) {
+      // Reset the simulation if it was completed and user wants to play again
+      setCurrentDataIndex(0);
+      setSimulationCompleted(false);
+      setSimulationState(prev => ({
+        ...prev,
+        currentTime: new Date(mockData[0].timestamp),
+        isRunning: true
+      }));
+    } else {
+      // Normal play/pause toggle
+      setSimulationState(prev => ({
+        ...prev,
+        isRunning: !prev.isRunning
+      }));
+    }
   };
   
   const handleSpeedChange = (speed: number) => {
@@ -97,6 +122,7 @@ const Index = () => {
           simulationSpeed={simulationState.simulationSpeed}
           onPlayPause={handlePlayPause}
           onSpeedChange={handleSpeedChange}
+          isCompleted={simulationCompleted}
         />
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
