@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Droplet, Sun, Fan, Flask, PowerIcon } from 'lucide-react';
+import { Droplet, Sun, Fan, Beaker, PowerIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SystemControlProps {
@@ -94,7 +94,7 @@ const SystemControl: React.FC<SystemControlProps> = ({
         )}
         
         {renderToggle(
-          <Flask className={cn("h-6 w-6", nutrientDispenser ? "text-purple-500" : "text-gray-500")} />,
+          <Beaker className={cn("h-6 w-6", nutrientDispenser ? "text-purple-500" : "text-gray-500")} />,
           "Nutrient Dispenser",
           nutrientDispenser,
           onToggleNutrientDispenser,
