@@ -34,6 +34,115 @@ const Index = () => {
     nutrientDispenser: false
   });
 
+  // Calculate simulation progress
+  const simulationProgress = (currentDataIndex / (simulationState.simulationData.length - 1)) * 100;
+
+  // Check for critical conditions and create alerts
+  useEffect(() => {
+    if (!simulationState.isRunning) return;
+    
+    const checkConditionsAndCreateAlerts = () => {
+      let newAlerts: Alert[] = [...simulationState.alerts];
+      const currentTime = simulationState.currentTime;
+      
+      // Check water level
+      if (currentData.waterLevel <= 25 && !newAlerts.some(a => a.message.includes('Water level critical'))) {
+        newAlerts = [
+          {
+            level: 'error',
+            message: 'Water level critical. Refill required!',
+            timestamp: new Date(currentTime)
+          },
+          ...newAlerts
+        ];
+        
+        toast.error("Critical: Water level too low!", {
+          position: "top-center",
+          duration: 5000,
+        });
+      } else if (currentData.waterLevel <= 40 && !newAlerts.some(a => a.message.includes('Water level low'))) {
+        newAlerts = [
+          {
+            level: 'warning',
+            message: 'Water level low. Consider refilling soon.',
+            timestamp: new Date(currentTime)
+          },
+          ...newAlerts
+        ];
+      }
+      
+      // Check temperature
+      if (currentData.temperature > 28 && !newAlerts.some(a => a.message.includes('temperature'))) {
+        newAlerts = [
+          {
+            level: 'warning',
+            message: 'Temperature above optimal range',
+            timestamp: new Date(currentTime)
+          },
+          ...newAlerts
+        ];
+        
+        toast.warning("Warning: Temperature too high", {
+          position: "top-center",
+        });
+      }
+      
+      // Check soil moisture
+      if (currentData.soilMoisture < 40 && !newAlerts.some(a => a.message.includes('soil moisture'))) {
+        newAlerts = [
+          {
+            level: 'warning',
+            message: 'Soil moisture low. Watering recommended.',
+            timestamp: new Date(currentTime)
+          },
+          ...newAlerts
+        ];
+      }
+      
+      // Plant growth milestones
+      const growthValue = parseFloat(currentData.growthLevel);
+      if (growthValue >= 80 && growthValue < 85 && !newAlerts.some(a => a.message.includes('ready for harvest'))) {
+        newAlerts = [
+          {
+            level: 'info',
+            message: 'Plants ready for harvest!',
+            timestamp: new Date(currentTime)
+          },
+          ...newAlerts
+        ];
+        
+        toast.success("Plants are ready for harvest!", {
+          position: "top-center",
+        });
+      }
+      
+      if (growthValue >= 99.5 && !newAlerts.some(a => a.message.includes('fully grown'))) {
+        newAlerts = [
+          {
+            level: 'info',
+            message: 'Plants have fully grown to 100%!',
+            timestamp: new Date(currentTime)
+          },
+          ...newAlerts
+        ];
+        
+        toast.success("Plants have reached full growth!", {
+          position: "top-center",
+          duration: 5000,
+        });
+      }
+      
+      if (newAlerts.length !== simulationState.alerts.length) {
+        setSimulationState(prev => ({
+          ...prev,
+          alerts: newAlerts
+        }));
+      }
+    };
+    
+    checkConditionsAndCreateAlerts();
+  }, [currentDataIndex, simulationState.isRunning]);
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
@@ -74,7 +183,8 @@ const Index = () => {
       setSimulationState(prev => ({
         ...prev,
         currentTime: new Date(mockData[0].timestamp),
-        isRunning: true
+        isRunning: true,
+        alerts: [] // Clear alerts on restart
       }));
     } else {
       // Normal play/pause toggle
@@ -105,6 +215,20 @@ const Index = () => {
       ...prev,
       [control]: !prev[control]
     }));
+    
+    // Show notification when control is manually toggled
+    const isActivated = !manualControls[control];
+    const controlDisplayNames = {
+      waterPump: "Water Pump",
+      growLights: "Grow Lights",
+      ventilation: "Ventilation",
+      nutrientDispenser: "Nutrient Dispenser"
+    };
+    
+    toast.info(`${controlDisplayNames[control]} ${isActivated ? 'activated' : 'deactivated'}`, {
+      position: "bottom-right",
+      duration: 2000,
+    });
   };
   
   // Determine actuator status (either from simulation or manual override)
@@ -123,6 +247,7 @@ const Index = () => {
           onPlayPause={handlePlayPause}
           onSpeedChange={handleSpeedChange}
           isCompleted={simulationCompleted}
+          progress={simulationProgress}
         />
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -20,7 +20,8 @@ const PlantGrowthCard: React.FC<PlantGrowthCardProps> = ({ growthPercentage }) =
     if (growthValue < 40) return "Early Growth";
     if (growthValue < 60) return "Vegetative";
     if (growthValue < 80) return "Mature";
-    return "Ready for Harvest";
+    if (growthValue < 100) return "Ready for Harvest";
+    return "Fully Grown";
   };
   
   // Get color based on growth stage
@@ -29,7 +30,8 @@ const PlantGrowthCard: React.FC<PlantGrowthCardProps> = ({ growthPercentage }) =
     if (growthValue < 40) return "bg-green-400";
     if (growthValue < 60) return "bg-green-500";
     if (growthValue < 80) return "bg-green-600";
-    return "bg-green-700";
+    if (growthValue < 100) return "bg-green-700";
+    return "bg-emerald-600";
   };
 
   // Plant size visualization
@@ -54,7 +56,7 @@ const PlantGrowthCard: React.FC<PlantGrowthCardProps> = ({ growthPercentage }) =
         <div className="flex justify-between items-baseline mb-2">
           <span className="text-3xl font-bold">{growthValue.toFixed(1)}%</span>
           <span className="text-sm text-green-600 font-medium">
-            {growthValue >= 80 ? "Ready!" : "Growing"}
+            {growthValue >= 100 ? "Fully Grown!" : (growthValue >= 80 ? "Ready!" : "Growing")}
           </span>
         </div>
         
@@ -83,7 +85,7 @@ const PlantGrowthCard: React.FC<PlantGrowthCardProps> = ({ growthPercentage }) =
           >
             <div className="w-2 bg-green-600 h-full mx-auto"></div>
             
-            {/* Plant leaves - only show if growth is over certain thresholds */}
+            {/* Plant leaves - show more as growth increases */}
             {growthValue >= 10 && (
               <div className="absolute w-6 h-3 bg-green-500 rounded-full -left-6 top-1 transform -rotate-12"></div>
             )}
@@ -106,6 +108,22 @@ const PlantGrowthCard: React.FC<PlantGrowthCardProps> = ({ growthPercentage }) =
             
             {growthValue >= 80 && (
               <div className="absolute w-10 h-5 bg-green-500 rounded-full -right-10 top-12 transform rotate-12"></div>
+            )}
+            
+            {/* Add more leaves for near-fully grown plants */}
+            {growthValue >= 90 && (
+              <div className="absolute w-11 h-6 bg-green-600 rounded-full -left-12 top-3 transform -rotate-20"></div>
+            )}
+            
+            {growthValue >= 95 && (
+              <div className="absolute w-11 h-6 bg-green-600 rounded-full -right-12 top-5 transform rotate-20"></div>
+            )}
+            
+            {/* Flower/fruit for fully grown plants */}
+            {growthValue >= 100 && (
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <div className="w-6 h-6 bg-amber-400 rounded-full animate-pulse"></div>
+              </div>
             )}
           </div>
         </div>
