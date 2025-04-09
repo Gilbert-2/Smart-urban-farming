@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Thermometer, Droplet, Gauge, Wind } from 'lucide-react';
 import DashboardHeader from '@/components/DashboardHeader';
@@ -9,6 +8,7 @@ import PlantGrowthCard from '@/components/PlantGrowthCard';
 import ResourceUsageCard from '@/components/ResourceUsageCard';
 import WaterLevelCard from '@/components/WaterLevelCard';
 import AlertsCard from '@/components/AlertsCard';
+import SimulationReport from '@/components/SimulationReport';
 import { mockData, mockAlerts } from '@/lib/mockData';
 import { SensorData, Alert, SimulationState } from '@/lib/types';
 import { toast } from "sonner";
@@ -36,6 +36,52 @@ const Index = () => {
 
   // Calculate simulation progress
   const simulationProgress = (currentDataIndex / (simulationState.simulationData.length - 1)) * 100;
+
+  // Handle report download
+  const handleDownloadReport = () => {
+    try {
+      // Generate report content
+      const reportTitle = "Smart Urban Farming System - Simulation Report";
+      const dateTime = new Date().toLocaleString();
+      const growthValue = parseFloat(currentData.growthLevel).toFixed(1);
+      
+      let reportContent = `${reportTitle}\n`;
+      reportContent += `Generated: ${dateTime}\n\n`;
+      reportContent += `SIMULATION SUMMARY\n`;
+      reportContent += `----------------\n`;
+      reportContent += `Plant Growth: ${growthValue}%\n`;
+      reportContent += `Final Temperature: ${currentData.temperature.toFixed(1)}°C\n`;
+      reportContent += `Final Humidity: ${currentData.humidity.toFixed(1)}%\n`;
+      reportContent += `Final Soil Moisture: ${currentData.soilMoisture.toFixed(1)}%\n`;
+      reportContent += `Final Water Level: ${currentData.waterLevel.toFixed(1)}%\n`;
+      reportContent += `Total Energy Consumption: ${currentData.consumption.energy} kWh\n`;
+      reportContent += `Total Water Consumption: ${currentData.consumption.water} liters\n\n`;
+      
+      reportContent += `ALERTS LOG\n`;
+      reportContent += `----------\n`;
+      simulationState.alerts.forEach((alert, index) => {
+        reportContent += `[${alert.level.toUpperCase()}] ${alert.timestamp.toLocaleString()}: ${alert.message}\n`;
+      });
+      
+      // Create blob and download
+      const blob = new Blob([reportContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'farming-simulation-report.txt';
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      toast.success("Report downloaded successfully!", {
+        position: "top-center",
+        duration: 3000,
+      });
+    } catch (error) {
+      toast.error("Failed to download report", {
+        position: "top-center",
+      });
+    }
+  };
 
   // Check for critical conditions and create alerts
   useEffect(() => {
@@ -259,7 +305,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         <DashboardHeader 
           currentTime={simulationState.currentTime}
@@ -353,6 +399,14 @@ const Index = () => {
             onToggleGrowLights={() => toggleControl('growLights')}
             onToggleVentilation={() => toggleControl('ventilation')}
             onToggleNutrientDispenser={() => toggleControl('nutrientDispenser')}
+          />
+          
+          {/* Simulation Report - New! */}
+          <SimulationReport 
+            simulationData={simulationState.simulationData}
+            currentData={currentData}
+            alerts={simulationState.alerts}
+            onDownload={handleDownloadReport}
           />
           
           {/* Alerts */}

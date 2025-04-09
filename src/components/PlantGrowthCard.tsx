@@ -40,24 +40,33 @@ const PlantGrowthCard: React.FC<PlantGrowthCardProps> = ({ growthPercentage }) =
     return Math.max(5, Math.min(growthValue, 100));
   };
 
+  // Get days to harvest estimate
+  const getDaysToHarvest = () => {
+    if (growthValue >= 80) return "Ready now!";
+    const daysLeft = Math.ceil((80 - growthValue) / 5); // Rough estimate
+    return `~${daysLeft} days`;
+  }
+
   return (
     <Card className="border-2 border-gray-100 hover:border-green-300 transition-all duration-300 h-full">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 border-b border-gray-100">
         <div className="flex justify-between items-center">
           <CardTitle className="text-md text-gray-700 flex items-center">
             <Sprout className="h-5 w-5 text-green-600 mr-2" />
             <span>Plant Growth</span>
           </CardTitle>
-          <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
+          <span className={`text-sm ${
+            growthValue >= 80 ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"
+          } px-2 py-1 rounded-full font-medium`}>
             {getGrowthStage()}
           </span>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <div className="flex justify-between items-baseline mb-2">
           <span className="text-3xl font-bold">{growthValue.toFixed(1)}%</span>
           <span className="text-sm text-green-600 font-medium">
-            {growthValue >= 100 ? "Fully Grown!" : (growthValue >= 80 ? "Ready!" : "Growing")}
+            {growthValue >= 100 ? "Fully Grown!" : (growthValue >= 80 ? "Ready!" : `Harvest in: ${getDaysToHarvest()}`)}
           </span>
         </div>
         
@@ -76,15 +85,20 @@ const PlantGrowthCard: React.FC<PlantGrowthCardProps> = ({ growthPercentage }) =
         </div>
         
         {/* Plant visualization */}
-        <div className="flex justify-center h-20 relative">
+        <div className="flex justify-center h-28 relative">
           <div className="absolute bottom-0 w-full bg-amber-100 h-3 rounded-t-sm"></div>
           
           {/* Plant stem */}
           <div 
             className="absolute bottom-3"
-            style={{ height: `${getPlantHeight() * 0.17}px` }}
+            style={{ height: `${getPlantHeight() * 0.2}px` }}
           >
-            <div className="w-2 bg-green-600 h-full mx-auto"></div>
+            <div className="w-2 bg-green-600 h-full mx-auto relative">
+              {/* Add some texture to the stem */}
+              {growthValue > 30 && (
+                <div className="absolute top-1/2 left-1/2 w-1 h-4 bg-green-700 -translate-y-1/2 -translate-x-1/2"></div>
+              )}
+            </div>
             
             {/* Plant leaves - show more as growth increases */}
             {growthValue >= 10 && (
@@ -124,8 +138,37 @@ const PlantGrowthCard: React.FC<PlantGrowthCardProps> = ({ growthPercentage }) =
             {growthValue >= 100 && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <div className="w-6 h-6 bg-amber-400 rounded-full animate-pulse"></div>
+                {/* Add little petals around the flower */}
+                <div className="absolute -top-1 -left-1 w-3 h-3 bg-amber-300 rounded-full"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-300 rounded-full"></div>
+                <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-amber-300 rounded-full"></div>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-amber-300 rounded-full"></div>
               </div>
             )}
+          </div>
+        </div>
+        
+        {/* Growth stages indicator */}
+        <div className="flex justify-between mt-4 text-xs text-gray-500 border-t pt-2">
+          <div className={`flex flex-col items-center ${growthValue >= 20 ? 'text-green-600 font-medium' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${growthValue >= 20 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+            <span>Seedling</span>
+          </div>
+          <div className={`flex flex-col items-center ${growthValue >= 40 ? 'text-green-600 font-medium' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${growthValue >= 40 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+            <span>Early</span>
+          </div>
+          <div className={`flex flex-col items-center ${growthValue >= 60 ? 'text-green-600 font-medium' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${growthValue >= 60 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+            <span>Mature</span>
+          </div>
+          <div className={`flex flex-col items-center ${growthValue >= 80 ? 'text-green-600 font-medium' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${growthValue >= 80 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+            <span>Harvest</span>
+          </div>
+          <div className={`flex flex-col items-center ${growthValue >= 100 ? 'text-green-600 font-medium' : ''}`}>
+            <div className={`w-2 h-2 rounded-full ${growthValue >= 100 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+            <span>Full</span>
           </div>
         </div>
       </CardContent>
