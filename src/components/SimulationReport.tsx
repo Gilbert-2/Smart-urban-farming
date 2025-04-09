@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download, FileText, Share2 } from 'lucide-react';
+import { Download, FileText, Share2, Package } from 'lucide-react';
 import { SensorData, Alert } from '@/lib/types';
 
 interface SimulationReportProps {
@@ -40,6 +40,14 @@ const SimulationReport: React.FC<SimulationReportProps> = ({
   const growthValue = parseFloat(currentData.growthLevel);
   const warningAlertsCount = alerts.filter(a => a.level === 'warning').length;
   const errorAlertsCount = alerts.filter(a => a.level === 'error').length;
+  
+  const downloadEntireProject = () => {
+    // Create a link element to download the project from GitHub
+    window.open('https://github.com/your-username/smart-urban-farming-system/archive/main.zip', '_blank');
+    
+    // Alternatively, provide instructions for downloading via UI
+    alert("To download the entire project:\n\n1. Click on the GitHub icon in the top right corner\n2. On the GitHub page, click the green 'Code' button\n3. Select 'Download ZIP'\n\nOr use version control: git clone https://github.com/your-username/smart-urban-farming-system.git");
+  };
   
   return (
     <Card className="border-2 border-gray-100 hover:border-indigo-300 transition-all duration-300">
@@ -97,10 +105,18 @@ const SimulationReport: React.FC<SimulationReportProps> = ({
           </div>
         </div>
         
-        <div className="mt-4 text-center">
-          <button className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center justify-center w-full">
+        <div className="mt-4 flex justify-between items-center">
+          <button className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center">
             <Share2 className="h-4 w-4 mr-1" />
             Share Results
+          </button>
+          
+          <button 
+            onClick={downloadEntireProject}
+            className="flex items-center bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded-full text-sm transition-all"
+          >
+            <Package className="h-4 w-4 mr-1" />
+            Download Project
           </button>
         </div>
       </CardContent>

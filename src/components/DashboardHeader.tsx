@@ -79,12 +79,15 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               style={{ width: `${progress}%` }}
             >
               {/* Shimmering effect */}
-              <div className="absolute inset-0 w-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite]" 
-                   style={{ backgroundSize: "200% 100%", animation: "shimmer 2s infinite" }}
+              <div className="absolute inset-0 w-full bg-gradient-to-r from-transparent via-white/30 to-transparent" 
+                   style={{ 
+                     backgroundSize: "200% 100%", 
+                     animation: "shimmer 2s infinite" 
+                   }}
               ></div>
             </div>
           </div>
-          <style jsx>{`
+          <style>{`
             @keyframes shimmer {
               0% { background-position: -200% 0; }
               100% { background-position: 200% 0; }
