@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,10 +54,9 @@ import {
   Leaf
 } from "lucide-react";
 
-// Form schema with validation
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  location: z.string().optional(),
+  location: z.string().min(2, { message: "Location must be at least 2 characters." }),
   cropType: z.string().optional(),
   farmLayout: z.string().optional(),
   experienceLevel: z.string().optional(),
@@ -103,7 +101,6 @@ const PromptForm = () => {
   const [loadingProgress, setLoadingProgress] = React.useState<number>(0);
   const navigate = useNavigate();
 
-  // Define form with default values
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -116,20 +113,16 @@ const PromptForm = () => {
     },
   });
 
-  // Handle form submission
   const onSubmit = (data: FormValues) => {
     console.log("Form submitted:", data);
     setShowLoading(true);
 
-    // Store form data in localStorage for persistence
     localStorage.setItem("farmingSimulationUser", JSON.stringify(data));
     
-    // Simulate loading process
     const interval = setInterval(() => {
       setLoadingProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
-          // Redirect to the main dashboard after loading completes
           setTimeout(() => {
             navigate("/dashboard");
           }, 500);
@@ -148,16 +141,17 @@ const PromptForm = () => {
       4: ["goal"]
     };
     
-    // Validate current step fields
     const fieldsToValidate = currentStepFields[step as keyof typeof currentStepFields];
     
     if (step === 1) {
-      // For step 1, we need to validate the name field
       form.trigger("name").then((valid) => {
         if (valid) setStep(prev => prev + 1);
       });
+    } else if (step === 2) {
+      form.trigger("location").then((valid) => {
+        if (valid) setStep(prev => prev + 1);
+      });
     } else {
-      // For other steps, optional fields don't need validation
       setStep(prev => prev + 1);
     }
   };
@@ -212,7 +206,6 @@ const PromptForm = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <Tabs value={String(step)} className="w-full">
-                {/* Step 1: Essential Details */}
                 <TabsContent value="1" className="space-y-4">
                   <div className="flex items-center space-x-2 text-green-700 mb-4">
                     <User size={20} />
@@ -237,7 +230,6 @@ const PromptForm = () => {
                   />
                 </TabsContent>
                 
-                {/* Step 2: Location and Crop */}
                 <TabsContent value="2" className="space-y-4">
                   <div className="flex items-center space-x-2 text-green-700 mb-4">
                     <MapPin size={20} />
@@ -249,7 +241,7 @@ const PromptForm = () => {
                     name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Your Location (Optional)</FormLabel>
+                        <FormLabel>Your Location</FormLabel>
                         <FormControl>
                           <Input placeholder="City, Country" {...field} />
                         </FormControl>
@@ -296,7 +288,6 @@ const PromptForm = () => {
                   />
                 </TabsContent>
                 
-                {/* Step 3: Farm Setup */}
                 <TabsContent value="3" className="space-y-4">
                   <div className="flex items-center space-x-2 text-green-700 mb-4">
                     <LayoutGrid size={20} />
@@ -369,7 +360,6 @@ const PromptForm = () => {
                   />
                 </TabsContent>
                 
-                {/* Step 4: Goals */}
                 <TabsContent value="4" className="space-y-4">
                   <div className="flex items-center space-x-2 text-green-700 mb-4">
                     <Settings size={20} />
@@ -415,7 +405,6 @@ const PromptForm = () => {
                   </div>
                 </TabsContent>
               
-                {/* Navigation Buttons */}
                 {step !== 4 && (
                   <div className="flex justify-end space-x-2 pt-4">
                     {step > 1 && (
@@ -437,7 +426,6 @@ const PromptForm = () => {
                   </div>
                 )}
               
-                {/* Step indicator - Fixed by moving inside the main Tabs component */}
                 <div className="flex justify-center space-x-2 pt-4">
                   <TabsList>
                     {[1, 2, 3, 4].map((s) => (

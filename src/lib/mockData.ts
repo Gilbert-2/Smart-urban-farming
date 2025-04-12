@@ -39,7 +39,8 @@ export const generateMockData = (): SensorData[] => {
     const needsVentilation = temperature > 24 || humidity > 70;
     const needsNutrients = hour === 8 || hour === 16;
     
-    const waterLevel = 90 - (i / 288) * 70; // Decreases more significantly throughout the day
+    // Updated: Water level starts at 100% (instead of 90%) and decreases throughout the day
+    const waterLevel = 100 - (i / 288) * 70; // Decreases from 100% throughout the day
     
     // Energy consumption increases throughout the day
     const energyConsumption = ((i / 288) * 1000).toFixed(2);
