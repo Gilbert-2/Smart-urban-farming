@@ -16,7 +16,9 @@ const Index = () => {
     handleDismissAlert,
     toggleControl,
     getActuatorStatus,
-    handleDownloadReport
+    handleDownloadReport,
+    waterManagement,
+    energyEfficiency
   } = useSimulation();
 
   return (
@@ -53,6 +55,8 @@ const Index = () => {
               ventilation: getActuatorStatus('ventilation'),
               nutrientDispenser: getActuatorStatus('nutrientDispenser')
             }}
+            waterManagement={waterManagement}
+            energyEfficiency={energyEfficiency}
           />
         </div>
         

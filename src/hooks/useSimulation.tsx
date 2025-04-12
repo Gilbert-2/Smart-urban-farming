@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { SensorData, Alert, SimulationState } from '@/lib/types';
@@ -26,6 +25,18 @@ export const useSimulation = () => {
     growLights: false,
     ventilation: false,
     nutrientDispenser: false
+  });
+
+  // New state for water management and energy efficiency
+  const [waterManagement, setWaterManagement] = useState({
+    recyclingEfficiency: 85, // percentage of water recycled
+    waterQuality: 92,        // percentage of water quality
+    phLevel: 6.5,            // pH level (6-7 is optimal for most plants)
+  });
+
+  const [energyEfficiency, setEnergyEfficiency] = useState({
+    ledEfficiency: 90,       // percentage of energy efficiency for LED lighting
+    renewableEnergyUse: 65,  // percentage of energy from renewable sources
   });
 
   // Check for critical conditions and create alerts
@@ -187,9 +198,41 @@ export const useSimulation = () => {
     return () => clearInterval(interval);
   }, [simulationState.isRunning, simulationState.simulationSpeed, simulationState.simulationData, simulationCompleted]);
   
+  const checkSystemRequirements = () => {
+    const { waterPump, growLights, ventilation } = manualControls;
+    
+    if (!waterPump) {
+      toast.error("Water pump must be turned on before starting simulation", {
+        position: "top-center",
+        duration: 4000,
+      });
+      return false;
+    }
+    
+    if (!growLights) {
+      toast.error("Grow lights must be turned on before starting simulation", {
+        position: "top-center",
+        duration: 4000,
+      });
+      return false;
+    }
+    
+    if (!ventilation) {
+      toast.error("Ventilation system must be turned on before starting simulation", {
+        position: "top-center",
+        duration: 4000,
+      });
+      return false;
+    }
+    
+    return true;
+  };
+  
   const handlePlayPause = () => {
     if (simulationCompleted && !simulationState.isRunning) {
       // Reset the simulation if it was completed and user wants to play again
+      if (!checkSystemRequirements()) return;
+      
       setCurrentDataIndex(0);
       setSimulationCompleted(false);
       setSimulationState(prev => ({
@@ -198,11 +241,30 @@ export const useSimulation = () => {
         isRunning: true,
         alerts: [] // Clear alerts on restart
       }));
-    } else {
+      
+      toast.success("Simulation started with optimized water and energy settings", {
+        position: "top-center",
+        duration: 3000,
+      });
+    } else if (!simulationState.isRunning) {
+      // Starting the simulation - check requirements
+      if (!checkSystemRequirements()) return;
+      
       // Normal play/pause toggle
       setSimulationState(prev => ({
         ...prev,
-        isRunning: !prev.isRunning
+        isRunning: true
+      }));
+      
+      toast.success("Simulation started with optimized water and energy settings", {
+        position: "top-center",
+        duration: 3000,
+      });
+    } else {
+      // Pausing the simulation
+      setSimulationState(prev => ({
+        ...prev,
+        isRunning: false
       }));
     }
   };
@@ -241,6 +303,28 @@ export const useSimulation = () => {
       position: "bottom-right",
       duration: 2000,
     });
+
+    // Add optimization messages for specific controls
+    if (control === 'waterPump' && isActivated) {
+      toast.success("Closed-loop water recycling system activated", {
+        position: "bottom-right",
+        duration: 3000,
+      });
+    }
+    
+    if (control === 'growLights' && isActivated) {
+      toast.success("Energy-efficient LED lighting system activated", {
+        position: "bottom-right",
+        duration: 3000,
+      });
+    }
+
+    if (control === 'ventilation' && isActivated) {
+      toast.success("Optimized climate control system activated", {
+        position: "bottom-right",
+        duration: 3000,
+      });
+    }
   };
   
   // Determine actuator status (either from simulation or manual override)
@@ -268,6 +352,18 @@ export const useSimulation = () => {
       reportContent += `Final Water Level: ${currentData.waterLevel.toFixed(1)}%\n`;
       reportContent += `Total Energy Consumption: ${currentData.consumption.energy} kWh\n`;
       reportContent += `Total Water Consumption: ${currentData.consumption.water} liters\n\n`;
+      
+      // Add new water management and energy efficiency data
+      reportContent += `WATER MANAGEMENT METRICS\n`;
+      reportContent += `----------------------\n`;
+      reportContent += `Water Recycling Efficiency: ${waterManagement.recyclingEfficiency}%\n`;
+      reportContent += `Water Quality: ${waterManagement.waterQuality}%\n`;
+      reportContent += `pH Level: ${waterManagement.phLevel}\n\n`;
+      
+      reportContent += `ENERGY EFFICIENCY METRICS\n`;
+      reportContent += `------------------------\n`;
+      reportContent += `LED Lighting Efficiency: ${energyEfficiency.ledEfficiency}%\n`;
+      reportContent += `Renewable Energy Usage: ${energyEfficiency.renewableEnergyUse}%\n\n`;
       
       reportContent += `ALERTS LOG\n`;
       reportContent += `----------\n`;
@@ -305,6 +401,8 @@ export const useSimulation = () => {
     handleDismissAlert,
     toggleControl,
     getActuatorStatus,
-    handleDownloadReport
+    handleDownloadReport,
+    waterManagement,
+    energyEfficiency
   };
 };

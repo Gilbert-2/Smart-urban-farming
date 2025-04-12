@@ -4,6 +4,8 @@ import { Alert, SensorData } from '@/lib/types';
 import SystemControl from '@/components/SystemControl';
 import SimulationReport from '@/components/SimulationReport';
 import AlertsCard from '@/components/AlertsCard';
+import WaterManagementCard from '@/components/WaterManagementCard';
+import EnergyEfficiencyCard from '@/components/EnergyEfficiencyCard';
 
 interface ControlsAndReportsProps {
   currentData: SensorData;
@@ -18,6 +20,15 @@ interface ControlsAndReportsProps {
     ventilation: boolean;
     nutrientDispenser: boolean;
   };
+  waterManagement?: {
+    recyclingEfficiency: number;
+    waterQuality: number;
+    phLevel: number;
+  };
+  energyEfficiency?: {
+    ledEfficiency: number;
+    renewableEnergyUse: number;
+  };
 }
 
 const ControlsAndReports: React.FC<ControlsAndReportsProps> = ({
@@ -27,7 +38,16 @@ const ControlsAndReports: React.FC<ControlsAndReportsProps> = ({
   onDismissAlert,
   onToggleControl,
   onDownloadReport,
-  controlStatus
+  controlStatus,
+  waterManagement = {
+    recyclingEfficiency: 85,
+    waterQuality: 92,
+    phLevel: 6.5
+  },
+  energyEfficiency = {
+    ledEfficiency: 90,
+    renewableEnergyUse: 65
+  }
 }) => {
   return (
     <>
@@ -41,6 +61,21 @@ const ControlsAndReports: React.FC<ControlsAndReportsProps> = ({
         onToggleGrowLights={() => onToggleControl('growLights')}
         onToggleVentilation={() => onToggleControl('ventilation')}
         onToggleNutrientDispenser={() => onToggleControl('nutrientDispenser')}
+      />
+      
+      {/* Water Management */}
+      <WaterManagementCard 
+        recyclingEfficiency={waterManagement.recyclingEfficiency}
+        waterQuality={waterManagement.waterQuality}
+        phLevel={waterManagement.phLevel}
+        waterLevel={currentData.waterLevel}
+      />
+      
+      {/* Energy Efficiency */}
+      <EnergyEfficiencyCard 
+        ledEfficiency={energyEfficiency.ledEfficiency}
+        renewableEnergyUse={energyEfficiency.renewableEnergyUse}
+        energyConsumption={currentData.consumption.energy}
       />
       
       {/* Simulation Report */}
