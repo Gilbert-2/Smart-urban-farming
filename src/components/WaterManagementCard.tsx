@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Droplets, Recycle, Flask } from 'lucide-react';
+import { Droplets, Recycle, Beaker } from 'lucide-react';
 
 interface WaterManagementCardProps {
   recyclingEfficiency: number;
@@ -73,7 +73,7 @@ const WaterManagementCard: React.FC<WaterManagementCardProps> = ({
         <div className="flex items-center justify-between bg-violet-50 p-3 rounded-lg">
           <div className="flex items-center">
             <div className="h-10 w-10 bg-violet-100 rounded-full flex items-center justify-center mr-3">
-              <Flask className="h-5 w-5 text-violet-600" />
+              <Beaker className="h-5 w-5 text-violet-600" />
             </div>
             <div>
               <p className="text-sm text-gray-500">pH Level</p>
