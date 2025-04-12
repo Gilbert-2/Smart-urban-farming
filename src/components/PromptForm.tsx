@@ -169,7 +169,7 @@ const PromptForm = () => {
   if (showLoading) {
     return (
       <Dialog open={showLoading} onOpenChange={setShowLoading}>
-        <DialogContent className="sm:max-w-md" hideCloseButton>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-center">Building Your Smart Farm</DialogTitle>
             <DialogDescription className="text-center">
@@ -414,43 +414,45 @@ const PromptForm = () => {
                     </Button>
                   </div>
                 </TabsContent>
-              </Tabs>
               
-              {/* Navigation Buttons */}
-              {step !== 4 && (
-                <div className="flex justify-end space-x-2 pt-4">
-                  {step > 1 && (
+                {/* Navigation Buttons */}
+                {step !== 4 && (
+                  <div className="flex justify-end space-x-2 pt-4">
+                    {step > 1 && (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={prevStep}
+                      >
+                        Back
+                      </Button>
+                    )}
                     <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={prevStep}
+                      type="button"
+                      onClick={nextStep}
                     >
-                      Back
+                      Next
+                      <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                  )}
-                  <Button 
-                    type="button"
-                    onClick={nextStep}
-                  >
-                    Next
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              )}
+                  </div>
+                )}
               
-              {/* Step indicator */}
-              <div className="flex justify-center space-x-2">
-                {[1, 2, 3, 4].map((s) => (
-                  <TabsList key={s} onClick={() => step >= s && setStep(s)}>
-                    <TabsTrigger 
-                      value={String(s)} 
-                      disabled={step < s}
-                      className={`w-3 h-3 rounded-full ${step === s ? 'bg-green-600' : 
-                        step > s ? 'bg-gray-400' : 'bg-gray-200'}`}
-                    />
+                {/* Step indicator - Fixed by moving inside the main Tabs component */}
+                <div className="flex justify-center space-x-2 pt-4">
+                  <TabsList>
+                    {[1, 2, 3, 4].map((s) => (
+                      <TabsTrigger 
+                        key={s}
+                        value={String(s)} 
+                        onClick={() => step >= s && setStep(s)}
+                        disabled={step < s}
+                        className={`w-3 h-3 rounded-full ${step === s ? 'bg-green-600' : 
+                          step > s ? 'bg-gray-400' : 'bg-gray-200'}`}
+                      />
+                    ))}
                   </TabsList>
-                ))}
-              </div>
+                </div>
+              </Tabs>
             </form>
           </Form>
         </CardContent>
